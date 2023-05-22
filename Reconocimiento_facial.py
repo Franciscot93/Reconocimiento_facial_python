@@ -41,11 +41,30 @@ cv2.rectangle(foto_prueba1,
               2
               )
 
+#realizar comparacion
+resultado=fr.compare_faces([cara_codificada_A],cara_codificada_B,0.45)
+
+
+
+#medida de la distancia
+distancia=fr.face_distance([cara_codificada_A],cara_codificada_B)
+
+
+#mostrar resultado
+
+cv2.putText(foto_prueba1,
+            f'{resultado} {distancia.round(2)}',
+            (50,50),
+            cv2.FONT_HERSHEY_COMPLEX,
+            1,
+            (0,255,0),
+            2)
 
 
 #mostrar imagenes
 cv2.imshow('Foto Control',foto_control1)
 cv2.imshow('Foto Prueba', foto_prueba1)
+
 
 #mantener programa abierto
 
