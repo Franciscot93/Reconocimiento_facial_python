@@ -2,6 +2,7 @@ import cv2
 import face_recognition as fr
 import os
 import numpy
+from datetime import datetime
 
 # creo DB
 
@@ -29,9 +30,21 @@ def codificar_imagenes(imagenes):
 
     return lista_imagenes_codificadas
 
+def registrar_ingreso(persona):
+    file=open('registro.csv','r+')
+    lista_datos=file.readlines()
+    nombres_registro=[]
+    for linea in lista_datos:
+        ingreso=linea.split(',')
+        nombres_registro.append(ingreso[0])
+
+    if persona not in nombres_registro:
+        ahora=datetime.now()
+        string_ahora=ahora.strftime('%H:%M:%S')
+        file.writelines(f'\n{persona},{string_ahora}')
+
 
 lista_empleados_codificada= codificar_imagenes(mis_imagenes)
-
 #usar la camara web para capturar mi la imagen a comparar
 
 captura= cv2.VideoCapture(0,cv2.CAP_DSHOW)
@@ -63,4 +76,23 @@ else:
             print('No coincide con ningun empleado')
 
         else:
-            print(f'Bienvenido {nombres_empleados[indice_coincidencia]}')
+            # almaceno nombre del empleado encontrado
+            nombre_empleado=nombres_empleados[indice_coincidencia]
+
+
+            #cordenadas de ubicacion del rostro del empleado
+
+            y1,x2,y2,x1=cara_location
+            cv2.rectangle(imagen,(x1,y1),(x2,y2),(0,255,0),2)
+
+
+            cv2.putText(imagen,nombre_empleado,( x1 +6,y2-6),cv2.FONT_HERSHEY_COMPLEX, 1,(255,255,255),2)
+
+            #muestro su imagen obtenida
+            cv2.imshow('Imagen web',imagen)
+
+            #agrego a la hoja de registro al empleado que ha ingresado
+            registrar_ingreso(nombre_empleado)
+
+            #loop para mantener la imagen en pantalla
+            cv2.waitKey(0)
