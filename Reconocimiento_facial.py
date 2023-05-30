@@ -1,6 +1,7 @@
 import cv2
 import face_recognition as fr
 import os
+import numpy
 
 # creo DB
 
@@ -31,4 +32,35 @@ def codificar_imagenes(imagenes):
 
 lista_empleados_codificada= codificar_imagenes(mis_imagenes)
 
-print(len(lista_empleados_codificada))
+#usar la camara web para capturar mi la imagen a comparar
+
+captura= cv2.VideoCapture(0,cv2.CAP_DSHOW)
+
+# leer la imagen de la camara web
+
+lectura_exitosa, imagen=captura.read()
+
+if not lectura_exitosa:
+    print('No se ha podido tomar la captura')
+else:
+    cara_captura=fr.face_locations(imagen)
+
+    cara_captura_codificada=fr.face_encodings(imagen,cara_captura)
+
+    #Buscar coincidencias
+
+    for cara_codif, cara_location in zip(cara_captura_codificada,cara_captura):
+        coincidencias=fr.compare_faces(lista_empleados_codificada,cara_codif)
+        distancias=fr.face_distance(lista_empleados_codificada,cara_codif)
+
+
+
+        indice_coincidencia=numpy.argmin(distancias)
+        print(indice_coincidencia)
+        #muestro coincidencias si existe la misma
+
+        if distancias[indice_coincidencia]>0.55:
+            print('No coincide con ningun empleado')
+
+        else:
+            print(f'Bienvenido {nombres_empleados[indice_coincidencia]}')
